@@ -10,6 +10,7 @@ from docx import Document
 from docx.oxml.ns import qn
 
 from .analysis import inspect_pdf, suspicious_chars
+from .ooxml_checks import docx_structure_warnings
 
 
 def audit_docx(docx_file: str | Path, *, original_pdf: str | Path | None = None,
@@ -26,7 +27,7 @@ def audit_docx(docx_file: str | Path, *, original_pdf: str | Path | None = None,
         "paragraphs_marked_rtl": int(rtl),
         "tables": len(doc.tables),
         "inline_images": len(doc.inline_shapes),
-        "warnings": [],
+        "warnings": docx_structure_warnings(docx_file),
     }
     if report["suspicious_unicode_in_docx"]:
         report["warnings"].append("OUTPUT_HAS_SUSPICIOUS_UNICODE")
