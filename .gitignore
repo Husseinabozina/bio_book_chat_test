@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.egg-info/
+/dist/
+/build/
+# Do not commit source books, conversions, or review screenshots.
+*.pdf
+*.docx
+*.png
+*.jpg
+*.jpeg
+*.zip
+*.tif
+*.tiff
+runs/
+outputs/
+input/
+*.log
+.DS_Store

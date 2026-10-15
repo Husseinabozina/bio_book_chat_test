@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bio-book-chat-test"
+version = "0.1.0"
+description = "Arabic PDF to editable Word conversion laboratory with measured quality gates"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["PyMuPDF>=1.23,<2", "python-docx>=1.1,<2", "Pillow>=10,<13"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10"]
+
+[project.scripts]
+bio2word = "bio_book_chat_test.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
