@@ -7,6 +7,7 @@ import sys
 from .analysis import inspect_pdf
 from .conversion import convert_pdf
 from .quality import audit_docx
+from .reviewed import render_reviewed_manifest
 
 
 def main(argv=None) -> int:
@@ -24,6 +25,10 @@ def main(argv=None) -> int:
     convert.add_argument("--dpi", type=int, default=150)
     convert.add_argument("--allow-suspect-text", action="store_true", help="Unsafe override: known damaged font mapping may be copied")
     convert.add_argument("--report")
+    reviewed = cmd.add_parser("reviewed", help="Build editable DOCX from a page-by-page source-verified manifest")
+    reviewed.add_argument("manifest", help="JSON manifest whose texts were checked against source page images")
+    reviewed.add_argument("output", help="Destination DOCX")
+    reviewed.add_argument("--report", help="JSON report path")
     audit = cmd.add_parser("audit", help="Audit DOCX and optionally render with LibreOffice")
     audit.add_argument("docx")
     audit.add_argument("--source", help="Source PDF")
@@ -37,6 +42,8 @@ def main(argv=None) -> int:
         elif args.action == "convert":
             result = convert_pdf(args.pdf, args.output, pages=args.pages, mode=args.mode,
                                  dpi=args.dpi, allow_suspect_text=args.allow_suspect_text)
+        elif args.action == "reviewed":
+            result = render_reviewed_manifest(args.manifest, args.output)
         else:
             result = audit_docx(args.docx, original_pdf=args.source, pages=args.pages, render=args.render)
         payload = json.dumps(result, ensure_ascii=False, indent=2)
