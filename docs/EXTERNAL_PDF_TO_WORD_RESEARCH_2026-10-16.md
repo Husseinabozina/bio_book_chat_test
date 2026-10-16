@@ -94,3 +94,7 @@ Proposed design: `SourcePage -> CandidateOCR[] + CandidateLayout[] -> Source-ver
 ```
 
 No star count, external demo score, Markdown-only output, or passing CI test substitutes for this project-specific evidence.
+
+## Actual execution update (2026-10-16)
+
+The engines listed as untested earlier in this **historical research document** have since had their direct exporters exercised on page 41. **These are measured results, not projected scores.** Consult [REAL_PAGE41_EXTERNAL_BENCHMARK_2026-10-16.md](REAL_PAGE41_EXTERNAL_BENCHMARK_2026-10-16.md) as authoritative for latest experiment status: PaddleOCR PP-StructureV3 Arabic **RAN** (431 Word text chars; SSIM 0.7221), MinerU 4 Basic **RAN** (56 Word text chars; SSIM 0.7434), pdf2docx **RAN** (706 Word text chars with corrupted Arabic; SSIM 0.7606 and two Word pages). All **REJECTED as direct converter**; no Word Desktop compatibility test or independently certified Arabic CER. The previous inline sample with `status=NOT_TESTED_ON_USER_BOOK` is a planning placeholder only, **not the latest status**.
