@@ -9,6 +9,7 @@ from .conversion import convert_pdf
 from .quality import audit_docx
 from .reviewed import render_reviewed_manifest
 from .release_gate import release_check
+from .ocr_benchmark import compare_ocr_json
 
 
 def main(argv=None) -> int:
@@ -41,6 +42,10 @@ def main(argv=None) -> int:
     gate.add_argument("manifest", help="Source-linked approval evidence; keep private/outside public repo")
     gate.add_argument("--render", action="store_true", help="Render actual output with LibreOffice")
     gate.add_argument("--report")
+    bench = cmd.add_parser("benchmark-ocr", help="Compare external OCR text with image-verified Arabic transcription; NOT a DOCX quality test")
+    bench.add_argument("reference")
+    bench.add_argument("candidate")
+    bench.add_argument("--report")
     args = parser.parse_args(argv)
     try:
         if args.action == "inspect":
@@ -52,6 +57,8 @@ def main(argv=None) -> int:
             result = render_reviewed_manifest(args.manifest, args.output)
         elif args.action == "audit":
             result = audit_docx(args.docx, original_pdf=args.source, pages=args.pages, render=args.render)
+        elif args.action == "benchmark-ocr":
+            result = compare_ocr_json(args.reference, args.candidate)
         else:
             result = release_check(args.docx, args.manifest, render=args.render)
         payload = json.dumps(result, ensure_ascii=False, indent=2)
