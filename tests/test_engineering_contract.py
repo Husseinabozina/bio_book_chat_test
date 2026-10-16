@@ -5,9 +5,9 @@ import json
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_all_18_engineering_decisions_are_recorded():
+def test_all_19_engineering_decisions_are_recorded():
     doc = (ROOT / "docs/ENGINEERING_DECISIONS.md").read_text(encoding="utf-8")
-    for n in range(1, 19):
+    for n in range(1, 20):
         assert f"ADR-{n:02d}" in doc
     assert "Not yet implemented" in doc
     assert "VERIFIED IN WORD" in doc
