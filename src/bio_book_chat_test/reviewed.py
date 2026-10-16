@@ -171,9 +171,12 @@ def render_reviewed_manifest(manifest_path: str | Path, destination: str | Path)
             sec.footer_distance = Inches(0.36)
             sec.footer.is_linked_to_previous = False
             pgnum = int(page.get("source_page", i + 1))
-            foot = sec.footer.paragraphs[0]
-            rtl(foot, visual_heading=True)
-            mixed_runs(foot, f"Original source page {pgnum}", font_size=9)
+            # Preserve the original only: never invent an English page footer.
+            # Optional printed footer is explicitly supplied by the reviewed source.
+            if page.get("printed_footer") is not None:
+                foot = sec.footer.paragraphs[0]
+                rtl(foot)
+                mixed_runs(foot, page["printed_footer"], font_size=9)
             for block in page.get("blocks", []):
                 kind = block.get("kind")
                 if kind in ("paragraph", "caption", "heading", "sidebar"):
@@ -201,7 +204,7 @@ def render_reviewed_manifest(manifest_path: str | Path, destination: str | Path)
         target = Path(destination)
         target.parent.mkdir(parents=True, exist_ok=True)
         document.save(target)
-        return {"pages_requested": len(pages), "editable_text_blocks": text_count, "native_tables": table_count, "native_table_cells": table_cells, "image_figures": figure_count,
+        return {"release_status": "EXPERIMENTAL_NOT_APPROVED", "requires_strict_release_check": True, "pages_requested": len(pages), "editable_text_blocks": text_count, "native_tables": table_count, "native_table_cells": table_cells, "image_figures": figure_count,
                 "output": str(target), "render_and_manual_review_required": True}
     finally:
         if pdf is not None:
