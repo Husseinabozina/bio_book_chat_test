@@ -27,3 +27,8 @@ Read [docs/ENGINEERING_DECISIONS.md](docs/ENGINEERING_DECISIONS.md) before imple
 - The gate may return `ELIGIBLE_FOR_HUMAN_FINAL_APPROVAL`, which is NOT user approval and NOT mathematical proof the evidence is truthful. Explicit end-user acceptance is an additional requirement.
 - Never commit original book pages, copyrighted transcriptions, or private source-review evidence to this public repository.
 - Any newly observed failure must be tied to a regression; if required checks cannot run (for example Microsoft Word Desktop), report status as **NOT VERIFIED** and withhold a final-fidelity claim.
+
+## External engine selection / research contract (2026-10-16)
+
+Read [docs/EXTERNAL_PDF_TO_WORD_RESEARCH_2026-10-16.md](docs/EXTERNAL_PDF_TO_WORD_RESEARCH_2026-10-16.md) before proposing or writing another full PDF→Word converter. **Benchmark PaddleOCR PP-StructureV3/VL and MinerU 4 DOCX exporters against the SAME user-approved pages before reinventing OOXML.** Use pdf2docx as an independent baseline only when documenting Unicode corruption. Do not confuse an upstream model's benchmark, an OCR-only text score, or a successful DOCX export with layout/editability/Word compatibility success. Check model-weight and code licenses independently.
+Use `bio2word benchmark-ocr runs/source_verified.json runs/ocr_candidate.json --report runs/ocr_score.json` on private image-reviewed text; never add copyrighted source text to public tests. Record every tool's actual installed version and source/output SHA.
