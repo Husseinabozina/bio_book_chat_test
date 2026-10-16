@@ -1,5 +1,8 @@
 # bio_book_chat_test — مختبر هندسة تحويل PDF العربي إلى Word
 
+> **ابدأ من هنا لأي نموذج جديد:** [START_HERE.md](START_HERE.md). هذا ريبو بحثي عام؛ مصدر الكتاب وWord والإنتاج الحقيقي موجود في الريبو الخاص `biology_book_to_word` وفرع `feature/integrated-layout-engine-qa` (مع صلاحية الوصول).
+
+
 ## External solutions benchmark (research, not yet installed or validated)
  
 We researched PaddleOCR 3.5+ direct DOCX export, MinerU 4.0 programmatic DOCX render, pdf2docx, Docling, Surya, Marker, Arabic-Nougat, and commercial controls. The comparison and fixed six-page experiment are recorded in [EXTERNAL_PDF_TO_WORD_RESEARCH_2026-10-16.md](docs/EXTERNAL_PDF_TO_WORD_RESEARCH_2026-10-16.md). Upstream feature statements are **not real-book test outcomes**.
