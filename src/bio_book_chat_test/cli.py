@@ -8,6 +8,7 @@ from .analysis import inspect_pdf
 from .conversion import convert_pdf
 from .quality import audit_docx
 from .reviewed import render_reviewed_manifest
+from .release_gate import release_check
 
 
 def main(argv=None) -> int:
@@ -35,6 +36,11 @@ def main(argv=None) -> int:
     audit.add_argument("--pages")
     audit.add_argument("--render", action="store_true")
     audit.add_argument("--report")
+    gate = cmd.add_parser("release-check", help="BLOCK release unless source/Word/layout/RTL reviews and actual DOCX checks pass")
+    gate.add_argument("docx")
+    gate.add_argument("manifest", help="Source-linked approval evidence; keep private/outside public repo")
+    gate.add_argument("--render", action="store_true", help="Render actual output with LibreOffice")
+    gate.add_argument("--report")
     args = parser.parse_args(argv)
     try:
         if args.action == "inspect":
@@ -44,14 +50,16 @@ def main(argv=None) -> int:
                                  dpi=args.dpi, allow_suspect_text=args.allow_suspect_text)
         elif args.action == "reviewed":
             result = render_reviewed_manifest(args.manifest, args.output)
-        else:
+        elif args.action == "audit":
             result = audit_docx(args.docx, original_pdf=args.source, pages=args.pages, render=args.render)
+        else:
+            result = release_check(args.docx, args.manifest, render=args.render)
         payload = json.dumps(result, ensure_ascii=False, indent=2)
         print(payload)
         if args.report:
             Path(args.report).parent.mkdir(parents=True, exist_ok=True)
             Path(args.report).write_text(payload+"\n", encoding="utf-8")
-        return 0
+        return 3 if args.action == "release-check" and result["decision"] == "BLOCKED" else 0
     except (ValueError, FileNotFoundError) as e:
         print(f"ERROR: {e}", file=sys.stderr)
         return 2
