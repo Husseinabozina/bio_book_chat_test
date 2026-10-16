@@ -1,5 +1,8 @@
 # Engineering contract for coding agents
 
+**NEW SESSION REQUIRED FIRST READ:** [START_HERE.md](START_HERE.md). This is a public research repository; the actual book and current per-page source data are private in `biology_book_to_word` and MUST NOT be copied here.
+
+
 This repository is a quality-controlled research prototype, not an OCR product. Follow these rules for every contribution:
 
 1. **Inspect before converting**: run `inspect` and store a run report outside version control. Do not assume PDF text streams are correct, especially Arabic custom-font encodings.
