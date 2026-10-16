@@ -110,6 +110,49 @@ def _check_objects(page: dict, number: int, output_text: str, issues: list) -> N
             _issue(issues, "FONT_NOT_CALIBRATED", loc, "Font and line-height need measured source/render metrics")
 
 
+
+def _actual_ooxml_direction_issues(root, issues: list) -> None:
+    """Inspect emitted Word runs, not merely declared directions in JSON."""
+    for idx, paragraph in enumerate(root.iter(W + "p"), 1):
+        runs = list(paragraph.iter(W + "r"))
+        all_text = "".join((t.text or "") for run in runs for t in run.iter(W + "t"))
+        if not all_text.strip():
+            continue
+        ppr = paragraph.find(W + "pPr")
+        bidi = None if ppr is None else ppr.find(W + "bidi")
+        if ARABIC.search(all_text) and (bidi is None or bidi.get(W + "val") == "0"):
+            _issue(issues, "OOXML_PARAGRAPH_BIDI_MISSING", f"word:p:{idx}",
+                   "Arabic paragraph lacks RTL paragraph property")
+        for ridx, run in enumerate(runs, 1):
+            t = "".join(n.text or "" for n in run.iter(W + "t"))
+            if not t:
+                continue
+            loc = f"word:p:{idx}/run:{ridx}"
+            if ARABIC.search(t) and LATIN.search(t):
+                _issue(issues, "OOXML_MIXED_SCRIPT_RUN", loc, "Actual Word run mixes Arabic and Latin")
+            pr = run.find(W + "rPr")
+            val = None
+            if pr is not None:
+                direction = pr.find(W + "rtl")
+                val = None if direction is None else direction.get(W + "val", "1")
+            if LATIN.search(t) and val != "0":
+                _issue(issues, "OOXML_LATIN_RUN_NOT_LTR", loc, "Latin run needs w:rtl=0")
+            if ARABIC.search(t) and val != "1":
+                _issue(issues, "OOXML_ARABIC_RUN_NOT_RTL", loc, "Arabic run needs w:rtl=1")
+
+
+def _actual_ooxml_art_issues(root, page_records: list, issues: list) -> None:
+    figure_count = sum(1 for pg in page_records for obj in pg.get("objects", [])
+                       if isinstance(obj, dict) and obj.get("kind") == "figure")
+    image_count = sum(1 for x in root.iter() if etree.QName(x).localname == "blip")
+    table_count = len(list(root.iter(W + "tbl")))
+    if figure_count and not image_count:
+        _issue(issues, "FIGURES_NOT_IN_DOCX", "docx", "No embedded Word artwork for declared figures")
+    cell_count = sum(1 for pg in page_records for obj in pg.get("objects", [])
+                     if isinstance(obj, dict) and obj.get("kind") == "table_cell")
+    if cell_count and not table_count:
+        _issue(issues, "NATIVE_TABLE_MISSING", "docx", "Declared table cells lack native Word table")
+
 def _review_ok(item) -> bool:
     return (isinstance(item, dict) and item.get("status") == "verified"
             and bool(item.get("evidence")) and bool(item.get("reviewer")))
@@ -147,9 +190,11 @@ def release_check(docx_path: str | Path, manifest_path: str | Path, *,
                "Actual Microsoft Word open/edit/save test for exact file required")
     issues.extend({"code": x, "location": "docx", "detail": "Invalid Word package structure"} for x in docx_structure_warnings(docx_path))
     output_text = ""
+    root = None
     try:
         with ZipFile(docx_path) as z:
             root = etree.fromstring(z.read("word/document.xml"))
+            _actual_ooxml_direction_issues(root, issues)
             output_text = _normalise("".join(node.text or "" for node in root.iter(W + "t")))
     except (BadZipFile, KeyError, etree.XMLSyntaxError):
         _issue(issues, "DOCX_TEXT_UNREADABLE", "docx", "Cannot extract Word OOXML text")
@@ -159,6 +204,8 @@ def release_check(docx_path: str | Path, manifest_path: str | Path, *,
     if not isinstance(pages, list) or not pages:
         _issue(issues, "PAGES_MISSING", "manifest", "At least one page required")
         pages = []
+    if root is not None:
+        _actual_ooxml_art_issues(root, pages, issues)
     for n, page in enumerate(pages, 1):
         if not isinstance(page, dict) or type(page.get("source_pdf_page")) is not int or page["source_pdf_page"] < 1:
             _issue(issues, "SOURCE_PAGE_INVALID", f"page:{n}", "One-based PDF source page required")
