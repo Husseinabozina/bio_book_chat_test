@@ -68,3 +68,16 @@ def test_reviewed_cli(tmp_path: Path):
     assert code == 0
     assert "نص تجريبي" in Document(tmp_path / "out.docx").paragraphs[0].text
     assert json.loads((tmp_path / "report.json").read_text(encoding="utf-8"))["pages_requested"] == 1
+
+
+def test_no_invented_english_footer_and_rtl_heading(tmp_path: Path):
+    manifest = {"pages": [{"source_page": 41, "blocks": [
+        {"kind": "heading", "text": "عنوان عربي من العينة"},
+        {"kind": "paragraph", "text": "فقرة صناعية"}]}]}
+    (tmp_path / "m.json").write_text(json.dumps(manifest, ensure_ascii=False), encoding="utf-8")
+    target = tmp_path / "out.docx"
+    result = render_reviewed_manifest(tmp_path / "m.json", target)
+    doc = Document(target)
+    assert result["release_status"] == "EXPERIMENTAL_NOT_APPROVED"
+    assert "Original source page" not in "\n".join(p.text for sec in doc.sections for p in sec.footer.paragraphs)
+    assert doc.paragraphs[0]._p.pPr.find(qn("w:bidi")) is not None
