@@ -179,6 +179,8 @@ def convert_pdf(source: str | Path, target: str | Path, *, pages: str | None = N
         target.parent.mkdir(parents=True, exist_ok=True)
         doc.save(str(target))
         return {
+            "release_status": "EXPERIMENTAL_NOT_APPROVED",
+            "requires_strict_release_check": True,
             "source": Path(source).name, "output": str(target), "mode": mode,
             "pages": records, "editable_pages": sum(p["page_mode"]=="editable" for p in records),
             "visual_pages": sum(p["page_mode"]=="visual" for p in records),
