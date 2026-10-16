@@ -35,6 +35,10 @@ Source incidents: `docs/FAILURE_POSTMORTEM.md`, `docs/PILOT_PAGES_41_43.md`,
 | ADR-17 | Original pages and handwritten transcriptions are private fixtures, not public CI assets. | Public repo should not publish textbook material. | Private local manifests only; synthetic unit tests only. **Policy in AGENTS.md**, cannot enforce content provenance by static check alone. |
 | ADR-18 | Every new defect needs a named regression and one reviewed correction at the root cause, not blind size scaling. | Spacing workarounds hid source font mismatch; Word XML error reached user. | CI tests XML order, mixed direction, geometry threshold, review missing, binary hash. **Partial**; automated visual/font calibration still outstanding. |
 
+## ADR-19: visual appearance takes precedence over unconstrained Word reflow
+
+| ADR-19 | **Visual fidelity first**, bounded by **three non-negotiable constraints**: correct Arabic/source text, real editable prose, valid Microsoft Word DOCX. Paragraph-level positioned regions permitted; per-PDF-line microtextboxes rejected as a brittle default. | User selected original-PDF look over free-flowing Word paragraphs; real page-41 direct exporters lost text/layout. | Decision recorded. Direct baselines were actually executed; one-page calibrated compositor and real Word interoperability not implemented. See `docs/REAL_PAGE41_EXTERNAL_BENCHMARK_2026-10-16.md`. |
+
 ## Release contract
 
 Conversion commands create **candidate** DOCX files. They MUST NOT report approved status.
