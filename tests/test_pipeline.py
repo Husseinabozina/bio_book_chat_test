@@ -113,3 +113,12 @@ def test_visual_mode_has_expected_rendered_pages(tmp_path):
     qa = audit_docx(dst, original_pdf=src, pages="1-2", render=True)
     assert qa.get("rendered_page_count") == 2, qa
     assert "RENDERED_PAGE_COUNT_MISMATCH" not in qa["warnings"]
+
+
+def test_basic_convert_never_claims_user_approval(tmp_path):
+    source = tmp_path / "source.pdf"
+    target = tmp_path / "candidate.docx"
+    make_pdf(source)
+    report = convert_pdf(source, target, pages="1", mode="visual", dpi=72)
+    assert report["release_status"] == "EXPERIMENTAL_NOT_APPROVED"
+    assert report["requires_strict_release_check"] is True
