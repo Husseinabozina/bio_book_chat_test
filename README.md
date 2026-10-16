@@ -1,5 +1,16 @@
 # bio_book_chat_test — مختبر هندسة تحويل PDF العربي إلى Word
 
+## External solutions benchmark (research, not yet installed or validated)
+ 
+We researched PaddleOCR 3.5+ direct DOCX export, MinerU 4.0 programmatic DOCX render, pdf2docx, Docling, Surya, Marker, Arabic-Nougat, and commercial controls. The comparison and fixed six-page experiment are recorded in [EXTERNAL_PDF_TO_WORD_RESEARCH_2026-10-16.md](docs/EXTERNAL_PDF_TO_WORD_RESEARCH_2026-10-16.md). Upstream feature statements are **not real-book test outcomes**.
+
+```sh
+bio2word benchmark-ocr runs/verified_arabic.json runs/candidate_paddle.json --report runs/candidate_paddle_score.json
+```
+
+This command evaluates **CER/WER text accuracy only**, preserving Arabic hamzas and requiring image-verified reference text. It does NOT grade DOCX layout, editability, or Word compatibility. No newly researched engine has yet been run on the user's source book.
+
+
 ## قرارات هندسية ملزمة قبل تسليم أي Word (2026-10-16)
 
 القرارات الثمانية عشر المبنية على أخطاء التجارب: [ENGINEERING_DECISIONS.md](docs/ENGINEERING_DECISIONS.md). تم تنفيذ بوابة صارمة تفصل بين *نجاح التحويل* و*اعتماد النتيجة*. كلمة "ناجح" في CI تعني نجاح اختبارات البرنامج فقط.
