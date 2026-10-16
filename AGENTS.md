@@ -32,3 +32,9 @@ Read [docs/ENGINEERING_DECISIONS.md](docs/ENGINEERING_DECISIONS.md) before imple
 
 Read [docs/EXTERNAL_PDF_TO_WORD_RESEARCH_2026-10-16.md](docs/EXTERNAL_PDF_TO_WORD_RESEARCH_2026-10-16.md) before proposing or writing another full PDF→Word converter. **Benchmark PaddleOCR PP-StructureV3/VL and MinerU 4 DOCX exporters against the SAME user-approved pages before reinventing OOXML.** Use pdf2docx as an independent baseline only when documenting Unicode corruption. Do not confuse an upstream model's benchmark, an OCR-only text score, or a successful DOCX export with layout/editability/Word compatibility success. Check model-weight and code licenses independently.
 Use `bio2word benchmark-ocr runs/source_verified.json runs/ocr_candidate.json --report runs/ocr_score.json` on private image-reviewed text; never add copyrighted source text to public tests. Record every tool's actual installed version and source/output SHA.
+
+## User-mandated target and page-41 evidence (ADR-19)
+
+**VISUAL FIDELITY FIRST:** Word must reproduce the original PDF appearance as closely as practically possible **before edits**, while preserving independently verified correct Arabic text, real editable prose and Microsoft Word file compatibility. Perfect reflow when users rewrite paragraphs is a lower priority. Semantic **paragraph-level** positioned frames are acceptable when tested; do not use fragile independent per-line textboxes as a default. Never replace an editable page with a full page screenshot.
+
+Real third-party engine execution and rejection criteria: [page-41 measured benchmark](docs/REAL_PAGE41_EXTERNAL_BENCHMARK_2026-10-16.md). PaddleOCR PP-StructureV3, MinerU Basic and pdf2docx were **ACTUALLY RUN** on page 41, and none is acceptable as a complete direct-to-DOCX exporter. Each future engine must be separately judged for Arabic accuracy, layout, editing and viewer compatibility; a green workflow is not proof an embedded engine ran successfully.
