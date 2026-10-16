@@ -41,3 +41,20 @@ Do not confuse the bridge's manifest fields with proof of source-independent rev
 Existing project main and client `deliverables/` are not changed by this development branch. Never publish the user's original PDF, text or figures here.
 
 See private `docs/INTEGRATION_VISUAL_FIDELITY_LAB.md` for reproducible candidate commands.
+
+
+## Measured private production-engine integration findings, 2026-10-16
+
+This section contains only reproducible **non-copyrighted metrics and engineering defects**. Real page assets/text remain in the private authoring repository.
+
+- The visual compositor's shared geometry anchor paragraph inherited RTL from the Arabic Normal style. LibreOffice thereby **mirrored physical page X positions** of overlaid figures and textboxes, while original full-width backgrounds concealed the defect. Fixed by explicitly setting `w:bidi=0` on the geometry anchor only; text in each editable Arabic VML box remains RTL.
+- A real editable Word table with `w:tblpPr` floated to the TOP of page 38 in LibreOffice despite valid OOXML. Moved `w:tbl` inside a page-positioned VML box, and updated table auditors to accept genuine Word tables in either main body or VML. **Microsoft Word Desktop editing of this shape still unverified.**
+- Five-page private (physical PDF pages 36–40) before/after same-environment comparison, 144-DPI grayscale SSIM: 36: 0.71273→0.76641; 37: 0.74891→0.82141; 38: 0.80341→0.81306; 39: 0.73117→0.73973; 40: 0.72294→0.83194. Mean 0.74383→0.79451. **These scores do not certify fidelity; the page-38 table can look correctly positioned while overall SSIM is lower than an earlier defective layout.**
+- Actual private pipeline result: 5 source pages → 5 rendered DOCX pages, 45 editable text paragraphs, 1 native editable table, 10 anchored figures/backgrounds, zero declared ZIP/OOXML/text/assets errors. The resulting Word **still has font/line-wrap differences** and has **not** undergone Microsoft Word Desktop testing or independent source-image proofreading.
+- Dedicated private tests prevent both invalid anchor element ordering and mirrored page-geometry anchor direction; audits parse actual DOCX, not merely source JSON. CI green means no **coded** structural regression, not user acceptance.
+- Source/QA split is now operational: private `production_pipeline.py` performs preflight/candidate build/structural QA/visual evidence, private `export_release_evidence.py` creates an intentionally unapproved draft in the public lab's strict schema.
+
+Private CI reproducibility link (requires repository access):
+[GitHub Actions run 38846467747](https://github.com/Husseinabozina/biology_book_to_word/actions/runs/38846467747).
+
+**Decision:** keep source-driven visual compositor, retain exact original artwork, route external OCR/layout models to candidate **data** only. Fix Word-native geometry and independently source-review text before scaling to page 41+. Avoid moving user's book/media or private evidence to this public lab.
