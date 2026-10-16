@@ -108,6 +108,14 @@ def _check_objects(page: dict, number: int, output_text: str, issues: list) -> N
         typography = obj.get("typography", {})
         if not isinstance(typography, dict) or typography.get("calibration") != "measured_source_and_render":
             _issue(issues, "FONT_NOT_CALIBRATED", loc, "Font and line-height need measured source/render metrics")
+        else:
+            numeric = ("source_font_size_pt", "render_font_size_pt",
+                       "source_line_height_pt", "render_line_height_pt")
+            if (not typography.get("source_font") or not typography.get("output_font")
+                    or any(type(typography.get(k)) not in (int, float) or typography[k] <= 0
+                           for k in numeric)):
+                _issue(issues, "FONT_METRICS_MISSING", loc,
+                       "Record source/output font names, font sizes and measured line heights")
 
 
 
@@ -206,6 +214,21 @@ def release_check(docx_path: str | Path, manifest_path: str | Path, *,
         pages = []
     if root is not None:
         _actual_ooxml_art_issues(root, pages, issues)
+    expected_parts = []
+    for page in pages:
+        if not isinstance(page, dict):
+            continue
+        for obj in page.get("objects", []):
+            if isinstance(obj, dict) and obj.get("kind") in TEXT_KINDS and isinstance(obj.get("text"), str):
+                expected_parts.append(_normalise(obj["text"]))
+    # Catch invented titles/footers/additions that have no source-backed object.
+    remainder = output_text
+    for part in expected_parts:
+        offset = remainder.find(part)
+        if offset >= 0:
+            remainder = remainder[:offset] + remainder[offset + len(part):]
+    if remainder.strip():
+        _issue(issues, "WORD_HAS_UNDECLARED_TEXT", "docx", "Word contains visible text not represented by source-backed objects")
     for n, page in enumerate(pages, 1):
         if not isinstance(page, dict) or type(page.get("source_pdf_page")) is not int or page["source_pdf_page"] < 1:
             _issue(issues, "SOURCE_PAGE_INVALID", f"page:{n}", "One-based PDF source page required")
