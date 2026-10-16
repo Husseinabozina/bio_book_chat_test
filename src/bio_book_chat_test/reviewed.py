@@ -38,10 +38,17 @@ def validate_text(value: str) -> None:
 
 
 def rtl(p, *, visual_heading: bool = False) -> None:
+    # Alignment and paragraph text direction are distinct requirements.
+    # The old visual_heading exception hid RTL direction in heading OOXML.
     p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    if not visual_heading:
-        prop = p._p.get_or_add_pPr()
-        el = OxmlElement("w:bidi");el.set(qn("w:val"), "1");prop.append(el)
+    prop = p._p.get_or_add_pPr()
+    existing = prop.find(qn("w:bidi"))
+    if existing is None:
+        el = OxmlElement("w:bidi")
+        el.set(qn("w:val"), "1")
+        prop.append(el)
+    else:
+        existing.set(qn("w:val"), "1")
 
 
 def mixed_runs(p, value: str, *, font_size: float, bold: bool = False, color: RGBColor | None = None) -> None:
