@@ -1,5 +1,37 @@
 # bio_book_chat_test — مختبر هندسة تحويل PDF العربي إلى Word
 
+> **ابدأ من هنا لأي نموذج جديد:** [START_HERE.md](START_HERE.md). هذا ريبو بحثي عام؛ مصدر الكتاب وWord والإنتاج الحقيقي موجود في الريبو الخاص `biology_book_to_word` وفرع `feature/integrated-layout-engine-qa` (مع صلاحية الوصول).
+
+
+## External solutions benchmark (research, not yet installed or validated)
+ 
+We researched PaddleOCR 3.5+ direct DOCX export, MinerU 4.0 programmatic DOCX render, pdf2docx, Docling, Surya, Marker, Arabic-Nougat, and commercial controls. The comparison and fixed six-page experiment are recorded in [EXTERNAL_PDF_TO_WORD_RESEARCH_2026-10-16.md](docs/EXTERNAL_PDF_TO_WORD_RESEARCH_2026-10-16.md). Upstream feature statements are **not real-book test outcomes**.
+
+```sh
+bio2word benchmark-ocr runs/verified_arabic.json runs/candidate_paddle.json --report runs/candidate_paddle_score.json
+```
+
+This command evaluates **CER/WER text accuracy only**, preserving Arabic hamzas and requiring image-verified reference text. It does NOT grade DOCX layout, editability, or Word compatibility. No newly researched engine has yet been run on the user's source book.
+
+
+## قرارات هندسية ملزمة قبل تسليم أي Word (2026-10-16)
+
+القرارات الثمانية عشر المبنية على أخطاء التجارب: [ENGINEERING_DECISIONS.md](docs/ENGINEERING_DECISIONS.md). تم تنفيذ بوابة صارمة تفصل بين *نجاح التحويل* و*اعتماد النتيجة*. كلمة "ناجح" في CI تعني نجاح اختبارات البرنامج فقط.
+
+**أداة منع التسليم الخاطئ:**
+
+```sh
+# بعد تنفيذ أي DOCX وبعد إعداد ملف أدلة مراجعة خاص، غير مرفوع للريبو العام:
+bio2word release-check outputs/candidate.docx runs/private_evidence.json \
+  --render --report runs/release.json
+# exit 3 -> BLOCKED; exit 0 -> مؤهل للمراجعة النهائية فقط، وليس موافقة المستخدم
+```
+
+نموذج البيانات: [RELEASE_EVIDENCE_TEMPLATE.json](docs/RELEASE_EVIDENCE_TEMPLATE.json) **غير معتمد عمدًا** ولا ينجح بتعبئته بقيم افتراضية. بوابة الإصدار تفحص أن نص Word قابل للتعديل، وكل عنصر له إثبات مراجعة المصدر وإحداثياته المقاسة بعد العرض، واتجاه RTL/LTR، ومعايرة الخط، وسلامة OOXML، ونسخة Word التي فُتح عليها *نفس الملف* مع رقم بصمته. الادعاءات المكتوبة في JSON لا تثبت بحد ذاتها صدق المراجعة؛ يلزم دليل فعلي واعتماد إنساني.
+
+**ما لم ينفذ بعد:** محرك معايرة الخط التلقائي، واستنتاج فقرات وأعمدة الكتاب، واستخراج إحداثيات الناتج تلقائيًا، واختبار Word Desktop بدون مساعدة المستخدم. لذلك تجاربنا القديمة **ما زالت غير معتمدة**. انظر [معايير الجودة](docs/QUALITY_GATES.md).
+
+
 المشروع **نظام تجريبي قابل للتكرار والقياس** لتحويل الكتب العربية العلمية من PDF إلى DOCX، ومعرفة *لماذا* يفشل التحويل، بدل إنتاج ملف يبدو أنه تم بنجاح لكن يحتوي أخطاء إملائية واتجاهات وتنسيق.
 
 > الحالة الحالية: **v0.1 / research prototype**. مسار `visual` يحافظ على شكل صفحات PDF عبر إدراج صورة لكل صفحة **لكنه غير قابل لتعديل النص**. مسار `editable` يكتب نص Word حقيقيًا ويحتفظ بمقاطع الصور النقطية، لكن إعادة بناء الجداول والأعمدة والرسومات المتجهية غير مكتملة. `hybrid` يمنع تمرير النص المتضرر بصمت، ويستخدم الصفحة كصورة عند فشل سلامة استخراج النص. لا يُدّعى تطابق بصري أو لغوي تلقائي.

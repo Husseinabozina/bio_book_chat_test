@@ -1,0 +1,29 @@
+name: PDF to Word defect
+description: Report a reproducible extraction or layout defect
+title: "[DEFECT] "
+labels: ["bug"]
+body:
+  - type: input
+    id: defect_id
+    attributes:
+      label: Defect ID
+      placeholder: "TX-01 / BI-01 / SP-01"
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce (no copyrighted source files)
+      description: Include mode, selected page number and software versions.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual vs expected result
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Anonymized metrics / test failure / proposed fix
