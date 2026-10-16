@@ -113,3 +113,47 @@ def test_cli_release_check_exits_nonzero_and_writes_report(tmp_path):
     report = tmp_path / "gate.json"
     assert main(["release-check", str(docx), str(manifest), "--report", str(report)]) == 3
     assert json.loads(report.read_text(encoding="utf-8"))["decision"] == "BLOCKED"
+
+
+def test_undeclared_word_title_and_missing_font_measurements_block(tmp_path):
+    docx, manifest, data = fixture(tmp_path)
+    d = Document(docx)
+    d.add_paragraph("عنوان من اختراع المولد")
+    d.save(docx)
+    data["docx_sha256"] = sha256(docx.read_bytes()).hexdigest()
+    data["word_compatibility"]["tested_docx_sha256"] = data["docx_sha256"]
+    manifest.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    found = codes(release_check(docx, manifest))
+    assert "WORD_HAS_UNDECLARED_TEXT" in found
+    assert "FONT_METRICS_MISSING" in found
+
+
+def test_synthetic_fully_attested_control_can_reach_human_approval(monkeypatch, tmp_path):
+    # A synthetic control with a stubbed renderer: tests state machine only.
+    # DOES NOT simulate or assert a real Microsoft Word review happened.
+    from docx.oxml import OxmlElement
+    from docx.oxml.ns import qn
+    import bio_book_chat_test.quality as qa
+    docx, manifest, data = fixture(tmp_path)
+    d = Document()
+    p = d.add_paragraph()
+    bidi = OxmlElement("w:bidi"); bidi.set(qn("w:val"), "1")
+    p._p.get_or_add_pPr().append(bidi)
+    for txt, direction in [("تجربة (", "1"), ("ATP", "0"), (") بسيطة", "1")]:
+        run = p.add_run(txt)
+        rprop = run._r.get_or_add_rPr()
+        rtl = OxmlElement("w:rtl"); rtl.set(qn("w:val"), direction)
+        rprop.append(rtl)
+    d.save(docx)
+    digest = sha256(docx.read_bytes()).hexdigest()
+    data["docx_sha256"] = digest
+    data["word_compatibility"]["tested_docx_sha256"] = digest
+    data["pages"][0]["objects"][0]["typography"].update({
+        "source_font": "Synthetic Arabic", "output_font": "Synthetic Arabic",
+        "source_font_size_pt": 14.0, "render_font_size_pt": 14.0,
+        "source_line_height_pt": 20.0, "render_line_height_pt": 20.0})
+    manifest.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(qa, "audit_docx", lambda *a, **k: {"rendered_page_count": 1, "warnings": []})
+    result = release_check(docx, manifest, render=True)
+    assert result["decision"] == "ELIGIBLE_FOR_HUMAN_FINAL_APPROVAL", result["issues"]
+    assert result["certified_by_automation"] is False
