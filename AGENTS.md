@@ -41,3 +41,18 @@ Use `bio2word benchmark-ocr runs/source_verified.json runs/ocr_candidate.json --
 **VISUAL FIDELITY FIRST:** Word must reproduce the original PDF appearance as closely as practically possible **before edits**, while preserving independently verified correct Arabic text, real editable prose and Microsoft Word file compatibility. Perfect reflow when users rewrite paragraphs is a lower priority. Semantic **paragraph-level** positioned frames are acceptable when tested; do not use fragile independent per-line textboxes as a default. Never replace an editable page with a full page screenshot.
 
 Real third-party engine execution and rejection criteria: [page-41 measured benchmark](docs/REAL_PAGE41_EXTERNAL_BENCHMARK_2026-10-16.md). PaddleOCR PP-StructureV3, MinerU Basic and pdf2docx were **ACTUALLY RUN** on page 41, and none is acceptable as a complete direct-to-DOCX exporter. Each future engine must be separately judged for Arabic accuracy, layout, editing and viewer compatibility; a green workflow is not proof an embedded engine ran successfully.
+
+
+## 2026-10-18 STOP-SHIP: source-first, not OCR-first (incident pages 130–150)
+
+This is a MUST-read, fail-closed requirement, following a real regression where Tesseract Arabic OCR text was directly placed in an editable DOCX and visually optimized. The real source PDF has malformed mappings AND *invisible stale text on physical page 136*. Thus PDF text extraction and OCR are hints only, **not trusted transcription**.
+
+- Directly read every ordinary prose/title/caption block from the rendered source page. Store private source text, bounding box, visual source reference, provenance, proofread status, figure exceptions and typography data as a reproducible per-page model.
+- Preserve original graphic/chart labels as complete source images. Do not reinsert removed text over vector title outlines without first inspecting the stripped backdrop. Never promote original-image-only tables as editable.
+- Do not split paragraphs into independently anchored lines. Require mixed-script RTL/LTR logical order.
+- After DOCX building, render and inspect every generated page and compare source-vs-output at the actual word/line/region level, not just global SSIM. OOXML completeness does not guarantee text is visibly un-clipped.
+- Separate actual text accuracy, shape similarity, Word editability and Word Desktop open/edit/save evidence. Green Actions cannot certify a file.
+- Treat 2026-10-18 attempted 130–150 OCR as an explicitly **unverified draft**. Never use its Tesseract content as golden source; do not claim the returned 21 pages are ready.
+- Keep the original user book, review screenshots, and all transcriptions OUT of this public laboratory repository.
+
+Private source-first recovery state as of 2026-10-18: 130–136 manually source-image-read candidate exists locally and was rendered; 137–140 also in separate source-first candidate, undergoing QA. 141–150 remain undone under source-first method. Latest production `main` in the private repository still has the 1–80 assembled file (not 1–40). For decisions verify live repo HEAD, not old START_HERE checkpoints.
