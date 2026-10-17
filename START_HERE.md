@@ -1,4 +1,4 @@
-# START HERE — PDF → Word Research Lab (public, synthetic only)
+> **UPDATE 2026-10-18:** The old `1–40 prepared, page 41 next` and `private feature branch current` statements below are HISTORICAL and OUTDATED. Actual private `main` contains `deliverables/biology-book-complete-001-080.docx`. Pages 130–150 underwent an OCR-first regression and are **unverified experiments**, not production. Current method is **source-visible-image-first, literal transcription and review, then editable Word and visual+desktop QA**. See `AGENTS.md` STOP-SHIP section. Never use unverified OCR strings as book ground truth. Check the live private HEAD and status before building.\n\n# START HERE — PDF → Word Research Lab (public, synthetic only)
 
 > **If another model starts here, this is the RESEARCH repo, NOT the canonical user-book delivery repo.**
 
