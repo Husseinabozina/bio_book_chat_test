@@ -56,3 +56,13 @@ This is a MUST-read, fail-closed requirement, following a real regression where 
 - Keep the original user book, review screenshots, and all transcriptions OUT of this public laboratory repository.
 
 Private source-first recovery state as of 2026-10-18: 130–136 manually source-image-read candidate exists locally and was rendered; 137–140 also in separate source-first candidate, undergoing QA. 141–150 remain undone under source-first method. Latest production `main` in the private repository still has the 1–80 assembled file (not 1–40). For decisions verify live repo HEAD, not old START_HERE checkpoints.
+
+
+## 2026-10-18 User-specific Word structure & efficient styling policy
+
+- Prefer a modern Unicode Arabic font near the original (e.g. Amiri), preserve **actual bold** and heading hierarchy/point sizes, not symbolic legacy AXtYasmine as an editable run font.
+- For short text inside a shaded shape, anchor/alignment/padding are relative to the **same shape geometry**; center vertically as visually appropriate. Apply to similar heading bars, not every paragraph or scientific figure. Avoid pointless pixel optimization when standard geometric alignment suffices.
+- **Page 135 was a verified structural error**: full-page decorative cover saved as a single PNG, so chapter title, “النقل (Transport)”, contents heading and all table of contents entries were not editable. **Prohibit chapter covers as fully raster if they have ordinary text.** Retain only decorative photographic artwork as images; rebuild headings/labels/contents as editable Word text and preferably native table cells. No duplicate outlines/ghost wording in the background.
+- Preserve dense scientific illustrations with embedded arrows/labels as complete figures, but extract ordinary external captions/headings as native Word text.
+- Prefer **native Word tables** for ordinary content tables. Do not mislabel independently positioned textboxes as native cells; record and disclose exceptions. Client advertisement requests table layout imitation, not explicitly native editable cells. This is an unresolved scope point, not grounds to deliver raster tables as definitively accepted.
+- Never reintroduce OCR-derived Unicode without visual-page proofreading or silently mark an untested Word Desktop file ready.
